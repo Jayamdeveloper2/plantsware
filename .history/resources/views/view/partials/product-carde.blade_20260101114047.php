@@ -1,1 +1,0 @@
-@include('view.partials.product-card', ['product' => $product])
