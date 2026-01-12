@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Categories</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #ffffff;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* SECTION */
+        .plant-categories-section {
+            background: #f8fafc;
+            padding: 40px 20px;
+            border-radius: 12px;
+        }
+        
+        /* CONTAINER */
+        .plant-categories-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Carousel Container */
+        .categories-carousel-container {
+            position: relative;
+            padding: 0 40px;
+        }
+        
+        /* Carousel */
+        .plant-categories-carousel {
+            margin: 0 -10px;
+        }
+        
+        /* Category Item */
+        .plant-category-item {
+            padding: 0 10px;
+            outline: none;
+        }
+        
+        /* Category Card */
+        .plant-category-card {
+            background: #fff;
+            padding: 25px 15px;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eef2f6;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .plant-category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Image Container with Badge */
+        .category-image-container {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin: 0 auto 20px;
+        }
+        
+        /* IMAGE CONTAINER - Circle Style */
+        .plant-category-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .plant-category-card:hover .plant-category-image {
+            border-color: #86efac;
+            transform: scale(1.05);
+        }
+        
+        .plant-category-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        
+        .plant-category-card:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* Badge - Positioned on Image */
+        .category-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff3366;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+            z-index: 2;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .badge-offer {
+            background: #ff3366;
+        }
+        
+        .badge-new {
+            background: #16a34a;
+        }
+        
+        .badge-sale {
+            background: #f59e0b;
+        }
+        
+        /* TEXT - Uniform position */
+        .category-content {
+            width: 100%;
+            margin-top: auto;
+        }
+        
+        .plant-category-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+            line-height: 1.3;
+            text-align: center;
+            min-height: 22px; /* Uniform height for all titles */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .plant-category-card:hover .plant-category-name {
+            color: #16a34a;
+        }
+        
+        /* Carousel Navigation */
+        .carousel-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            color: #334155;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        
+        .carousel-btn:hover {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+        
+        .carousel-btn-prev {
+            left: 0;
+        }
+        
+        .carousel-btn-next {
+            right: 0;
+        }
+        
+        /* Slick Carousel Custom Styles */
+        .slick-track {
+            display: flex !important;
+        }
+        
+        .slick-slide {
+            height: inherit !important;
+        }
+        
+        /* Card height fix for uniform look */
+        .plant-category-item {
+            height: 100%;
+        }
+        
+        .plant-category-card {
+            height: 100%;
+            min-height: 220px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .category-image-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .categories-carousel-container {
+                padding: 0 30px;
+            }
+            
+            .plant-category-card {
+                min-height: 200px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .plant-categories-section {
+                padding: 30px 15px;
+            }
+            
+            .category-image-container {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .plant-category-card {
+                padding: 20px 10px;
+                min-height: 190px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .categories-carousel-container {
+                padding: 0 20px;
+            }
+            
+            .carousel-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            .plant-category-card {
+                min-height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Plant Categories Section -->
+        <section class="plant-categories-section">
+            <div class="plant-categories-container">
+            
+                <div class="categories-carousel-container">
+                    <!-- Carousel Navigation Buttons -->
+                    <button class="carousel-btn carousel-btn-prev" id="prevBtn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <button class="carousel-btn carousel-btn-next" id="nextBtn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    
+                    <!-- Carousel -->
+                    <div class="plant-categories-carousel" id="plantCategoriesCarousel">
+                        <!-- Category 1 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Indoor Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Indoor Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 2 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <span class="category-badge badge-sale">SALE</span>
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1485955900006-10f4d324d411?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Succulent Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Succulent Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 3 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1463320898484-cdee8141c787?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Garden Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Garden Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 4 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <span class="category-badge badge-new">NEW</span>
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1426170042593-200f250dfdaf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Aquatic Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Aquatic Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 5 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1517191434949-5e90cd67d2b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Natural Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Natural Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 6 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <span class="category-badge badge-offer">OFFER</span>
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Flowering Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Flowering Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 7 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Air Purifying">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Air Purifying</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 8 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <span class="category-badge badge-sale">30% OFF</span>
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1545241047-6083a3684597?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Low Light Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Low Light Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 9 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <span class="category-badge badge-new">NEW</span>
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Herb Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Herb Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Category 10 -->
+                        <div class="plant-category-item">
+                            <a href="#" class="plant-category-card">
+                                <div class="category-image-container">
+                                    <div class="plant-category-image">
+                                        <img src="https://images.unsplash.com/photo-1598880940080-ff9a29891b85?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Tropical Plants">
+                                    </div>
+                                </div>
+                                <div class="category-content">
+                                    <h3 class="plant-category-name">Tropical Plants</h3>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    
+    <script>
+        $(document).ready(function(){
+            // Initialize the carousel
+            $('#plantCategoriesCarousel').slick({
+                dots: false,
+                arrows: false,
+                infinite: true,
+                speed: 300,
+                slidesToShow: 5,
+                slidesToScroll: 1,
+                autoplay: true,
+                autoplaySpeed: 3000,
+                responsive: [
+                    {
+                        breakpoint: 1024,
+                        settings: {
+                            slidesToShow: 4,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 768,
+                        settings: {
+                            slidesToShow: 3,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 576,
+                        settings: {
+                            slidesToShow: 2,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 400,
+                        settings: {
+                            slidesToShow: 1,
+                            slidesToScroll: 1
+                        }
+                    }
+                ]
+            });
+            
+            // Custom navigation buttons
+            $('#prevBtn').click(function(){
+                $('#plantCategoriesCarousel').slick('slickPrev');
+            });
+            
+            $('#nextBtn').click(function(){
+                $('#plantCategoriesCarousel').slick('slickNext');
+            });
+            
+            // Add click event to category cards
+            $('.plant-category-card').click(function(e){
+                e.preventDefault();
+                const categoryName = $(this).find('.plant-category-name').text();
+                alert(`Navigating to: ${categoryName} category`);
+            });
+        });
+    </script>
+</body>
+</html>
