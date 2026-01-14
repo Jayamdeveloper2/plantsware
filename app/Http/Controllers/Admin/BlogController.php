@@ -9,6 +9,7 @@ use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class BlogController extends Controller
 {
@@ -143,20 +144,63 @@ class BlogController extends Controller
 
     // To show embedded img 
 // In BlogController.php
+// public function ckeditorUpload(Request $request)
+// {
+//     $request->validate([
+//         'upload' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+//     ]);
+
+//     $file = $request->file('upload');
+//     $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+//     $path = $file->storeAs('blogs/ckeditor', $filename, 'public');
+
+//     return response()->json([
+//         'uploaded' => true,
+//         'url' => Storage::url($path)
+//     ]);
+// }
 public function ckeditorUpload(Request $request)
 {
-    $request->validate([
-        'upload' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-    ]);
+    // Force JSON response (important!)
+    $request->headers->set('Accept', 'application/json');
 
-    $file = $request->file('upload');
-    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-    $path = $file->storeAs('blogs/ckeditor', $filename, 'public');
+    try {
+        $request->validate([
+            'upload' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
 
-    return response()->json([
-        'uploaded' => true,
-        'url' => Storage::url($path)
-    ]);
+        $file = $request->file('upload');
+
+        if (!$file->isValid()) {
+            throw new \Exception('File upload invalid: ' . $file->getErrorMessage());
+        }
+
+        $filename = "blog_" . rand(1000, 9999) . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('blogs/ckeditor', $filename, 'public');
+
+        $url = Storage::url($path);
+
+        return response()->json([
+            'uploaded' => true,
+            'url' => $url
+        ])->header('Content-Type', 'application/json');
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'uploaded' => false,
+            'error' => [
+                'message' => $e->errors()['upload'][0] ?? 'Validation failed'
+            ]
+        ], 422)->header('Content-Type', 'application/json');
+    } catch (\Exception $e) {
+        \Log::error('CKEditor upload failed: ' . $e->getMessage());
+
+        return response()->json([
+            'uploaded' => false,
+            'error' => [
+                'message' => $e->getMessage() ?: 'Server error'
+            ]
+        ], 500)->header('Content-Type', 'application/json');
+    }
 }
     // end
 

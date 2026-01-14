@@ -109,8 +109,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 
-    Route::post('ckeditor/upload', [App\Http\Controllers\Admin\BlogController::class, 'ckeditorUpload'])
-    ->name('ckeditor.upload');  // ← correct: group makes it admin.ckeditor.upload
+    // Route::post('ckeditor/upload', [App\Http\Controllers\Admin\BlogController::class, 'ckeditorUpload'])
+    // ->name('ckeditor.upload');  // ← correct: group makes it admin.ckeditor.upload
+
+
+   
 
     
         // end 
@@ -146,9 +149,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Testimonials
         Route::resource('testimonials', TestimonialController::class);
 
-        // for embedded imgs
+        // for embedded imgs new added line 
         // Route::post('ckeditor/upload-image', [App\Http\Controllers\Admin\BlogController::class, 'ckeditorImageUpload'])->name('ckeditor.image.upload');
-        
+         Route::post('ckeditor/upload', [App\Http\Controllers\Admin\BlogController::class, 'ckeditorUpload'])
+    ->name('ckeditor.upload');
+        // end
         // Header Footer Settings
         Route::get('settings', [HeaderFooterController::class, 'index'])->name('settings');
         Route::post('settings', [HeaderFooterController::class, 'update'])->name('settings.update');

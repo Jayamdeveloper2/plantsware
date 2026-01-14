@@ -1,4 +1,4 @@
-@extends('admin.layout')   {{-- Change this to match your actual admin layout file --}}
+@extends('admin.layout')
 
 @section('content')
     <div class="container-fluid">
@@ -25,20 +25,6 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <!-- Category -->
-                            <!-- <div class="form-group mb-3">
-                                <label>Category</label>
-                                <select name="blog_category_id" class="form-control">
-                                    <option value="">-- Select Category --</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id }}"
-                                            {{ old('blog_category_id', $blog->blog_category_id) == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div> -->
 
                             <!-- Tags (multi-select) -->
                             <div class="form-group mb-3">
@@ -149,43 +135,81 @@
         </div>
     </div>
 
- 
-
     @push('scripts')
-    <!-- CKEditor 5 CSS -->
-    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor5.css">
+        <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor5.css">
+        <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
-    <!-- Classic Editor JS - no license key needed -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+        <script>
+            // Custom Upload Adapter (proven from your CodeIgniter reference)
+            class MyUploadAdapter {
+                constructor(loader) {
+                    this.loader = loader;
+                }
 
-    <script>
-        ClassicEditor
-            .create(document.querySelector('#editor'), {
-                toolbar: [
-                    'heading', '|',
-                    'bold', 'italic', 'underline', 'link', '|',
-                    'bulletedList', 'numberedList', '|',
-                    'outdent', 'indent', '|',
-                    'alignment:left', 'alignment:center', 'alignment:right', 'alignment:justify', '|',
-                    'blockQuote', 'insertTable', '|',
-                    'undo', 'redo'
-                ],
-                // Paste handling
-                pasteFromOffice: {
-                    removeStyles: false
-                },
-                // Avoid plugin errors
-                removePlugins: ['EasyImage', 'ImageUpload'],
-                // Paragraph behavior
-                enterMode: 'p',
-                shiftEnterMode: 'br'
-            })
-            .then(editor => {
-                console.log('CKEditor initialized successfully!');
-            })
-            .catch(error => {
-                console.error('CKEditor error:', error);
-            });
-    </script>
-@endpush
+                upload() {
+                    return this.loader.file.then(file => new Promise((resolve, reject) => {
+                        const data = new FormData();
+                        data.append('upload', file);
+
+                        fetch('{{ route("admin.ckeditor.upload") }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: data
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.url) {
+                                resolve({ default: result.url });
+                            } else {
+                                reject(result.error || 'Upload failed');
+                            }
+                        })
+                        .catch(error => reject(error));
+                    }));
+                }
+
+                abort() {}
+            }
+
+            // Register the custom adapter
+            function MyCustomUploadAdapterPlugin(editor) {
+                editor.plugins.get('FileRepository').createUploadAdapter = loader => new MyUploadAdapter(loader);
+            }
+
+            ClassicEditor
+                .create(document.querySelector('#editor'), {
+                    extraPlugins: [MyCustomUploadAdapterPlugin],
+                    toolbar: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', 'link', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'outdent', 'indent', '|',
+                        'alignment', '|',
+                        'blockQuote', 'insertTable', '|',
+                        'imageUpload', 'mediaEmbed', '|',
+                        'undo', 'redo'
+                    ],
+                    image: {
+                        toolbar: [
+                            'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
+                        ]
+                    },
+                    mediaEmbed: {
+                        previewsInData: true
+                    },
+                    pasteFromOffice: {
+                        removeStyles: false
+                    }
+                })
+                .then(editor => {
+                    console.log('CKEditor ready with custom image upload!');
+                })
+                .catch(error => {
+                    console.error('CKEditor error:', error);
+                });
+        </script>
+    @endpush
 @endsection

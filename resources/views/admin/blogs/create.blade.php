@@ -113,84 +113,88 @@
             </div>
         </div>
     </div>
-
- 
+    
 @push('scripts')
-    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor5.css">
+    <!-- Alternative CSS CDN (fixes 404/block) - use this reliable mirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ckeditor5/41.4.2/ckeditor5.min.css">
+
     <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
     <script>
-        // Custom upload adapter
-        class CKUploadAdapter {
+        // Custom Upload Adapter (tweaked for reliable POST and JSON)
+        class MyUploadAdapter {
             constructor(loader) {
                 this.loader = loader;
             }
 
             upload() {
-                return this.loader.file
-                    .then(file => new Promise((resolve, reject) => {
-                        const data = new FormData();
-                        data.append('upload', file);
+                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                    const data = new FormData();
+                    data.append('upload', file);
 
-                        fetch('{{ route("admin.ckeditor.upload") }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            },
-                            body: data
-                        })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.uploaded) {
-                                resolve({ default: result.url });
-                            } else {
-                                reject(result.error || 'Upload failed');
-                            }
-                        })
-                        .catch(error => {
-                            reject(error);
-                        });
-                    }));
+                    fetch('{{ route("admin.ckeditor.upload") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'  // ← add this to mimic AJAX
+                        },
+                        body: data
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Server returned ' + response.status + ' - ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(result => {
+                        if (result.uploaded && result.url) {
+                            resolve({ default: result.url });
+                        } else {
+                            reject(result.error || 'No URL in response');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Upload error:', error);
+                        reject(error);
+                    });
+                }));
             }
 
-            abort() {
-                // Optional: handle abort
-            }
+            abort() {}
         }
 
-        // Register the adapter
+        function MyCustomUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = loader => new MyUploadAdapter(loader);
+        }
+
         ClassicEditor
             .create(document.querySelector('#editor'), {
+                extraPlugins: [MyCustomUploadAdapterPlugin],
                 toolbar: [
                     'heading', '|',
                     'bold', 'italic', 'underline', 'link', '|',
                     'bulletedList', 'numberedList', '|',
                     'outdent', 'indent', '|',
+                    'alignment', '|',
                     'blockQuote', 'insertTable', '|',
                     'imageUpload', 'mediaEmbed', '|',
                     'undo', 'redo'
                 ],
                 image: {
                     toolbar: [
-                        'imageStyle:inline',
-                        'imageStyle:block',
-                        'imageStyle:side',
-                        '|',
-                        'toggleImageCaption',
-                        'imageTextAlternative'
+                        'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
                     ]
                 },
                 mediaEmbed: {
                     previewsInData: true
                 },
-                // Register custom adapter
-                simpleUpload: false, // disable built-in (not supported)
-                // Use our custom adapter instead
-                uploadAdapter: CKUploadAdapter
+                pasteFromOffice: {
+                    removeStyles: false
+                }
             })
             .then(editor => {
-                console.log('CKEditor ready with custom upload adapter!');
+                console.log('CKEditor ready with custom adapter!');
             })
             .catch(error => {
                 console.error('CKEditor error:', error);
