@@ -1,0 +1,7 @@
+*
+!public/
+!.gitignore
+.env
+>> .history/
+>> node_modules/
+>> vendor/
